@@ -1,10 +1,10 @@
 import '../entities/token.dart';
 import '../repositories/auth_repository.dart';
 
-class Login {
+class LoginUseCase {
   final AuthRepository repository;
 
-  Login(this.repository);
+  LoginUseCase(this.repository);
 
   Future<Token> execute({
     required String email,
