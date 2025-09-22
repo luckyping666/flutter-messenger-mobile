@@ -2,10 +2,10 @@ import '../../domain/entities/user.dart';
 
 class UserModel extends User {
   const UserModel({
-    required int id,
-    required String username,
-    required String email,
-  }) : super(id: id, username: username, email: email);
+    required super.id,
+    required super.username,
+    required super.email,
+  });
 
   /// Создание UserModel из JSON
   factory UserModel.fromJson(Map<String, dynamic> json) {

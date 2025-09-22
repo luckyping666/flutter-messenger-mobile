@@ -2,9 +2,9 @@ import '../../domain/entities/token.dart';
 
 class TokenModel extends Token {
   const TokenModel({
-    required String accessToken,
-    required String refreshToken,
-  }) : super(accessToken: accessToken, refreshToken: refreshToken);
+    required super.accessToken,
+    required super.refreshToken,
+  });
 
   /// Создание TokenModel из JSON
   factory TokenModel.fromJson(Map<String, dynamic> json) {
