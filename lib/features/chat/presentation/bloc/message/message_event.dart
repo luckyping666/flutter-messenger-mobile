@@ -10,7 +10,7 @@ abstract class MessageEvent extends Equatable {
 class LoadMessages extends MessageEvent {
   final int chatId;
 
-  LoadMessages(this.chatId);
+  LoadMessages({required this.chatId});
 
   @override
   List<Object?> get props => [chatId];
