@@ -24,8 +24,12 @@ class _ChatsPageState extends State<ChatsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Chats"),
+        title: Text("Messages", style: Theme.of(context).textTheme.titleLarge),
         centerTitle: false,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 70,
+        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.search))],
       ),
       body: BlocBuilder<ChatBloc, ChatState>(
         builder: (context, state) {
