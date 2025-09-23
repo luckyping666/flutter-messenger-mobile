@@ -14,7 +14,7 @@ class LoginParams {
 class LoginUseCase {
   final AuthRepository repository;
 
-  LoginUseCase(this.repository);
+  LoginUseCase({required this.repository});
 
   Future<Token> call(LoginParams params) async {
     return await repository.login(

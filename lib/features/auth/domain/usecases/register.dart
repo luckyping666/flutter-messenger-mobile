@@ -16,7 +16,7 @@ class RegisterParams {
 class RegisterUseCase {
   final AuthRepository repository;
 
-  RegisterUseCase(this.repository);
+  RegisterUseCase({required this.repository});
 
   Future<User> call(RegisterParams params) async {
     return await repository.register(
