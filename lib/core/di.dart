@@ -8,10 +8,15 @@ import 'package:messanger/features/auth/domain/usecases/logout.dart';
 import 'package:messanger/features/auth/domain/usecases/register.dart';
 import 'package:messanger/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:messanger/features/chat/data/datasources/chat_remote_datasource.dart';
+import 'package:messanger/features/chat/data/datasources/message_remote_datasource.dart';
 import 'package:messanger/features/chat/data/repositories_impl/chat_repository_impl.dart';
+import 'package:messanger/features/chat/data/repositories_impl/message_repository_impl.dart';
 import 'package:messanger/features/chat/domain/usecases/create_chat_usecase.dart';
 import 'package:messanger/features/chat/domain/usecases/get_chats_usecase.dart';
+import 'package:messanger/features/chat/domain/usecases/get_messages_usecase.dart';
+import 'package:messanger/features/chat/domain/usecases/send_message_usecase.dart';
 import 'package:messanger/features/chat/presentation/bloc/chat/chat_bloc.dart';
+import 'package:messanger/features/chat/presentation/bloc/message/message_bloc.dart';
 
 
 class DI {
@@ -59,24 +64,47 @@ class DI {
 
 
 class ChatDI {
-  static ChatRepositoryImpl provideRepository() {
-    final dio = Dio(BaseOptions(baseUrl: 'backend'));
-    final remote = ChatRemoteDataSource(dio);
-    return ChatRepositoryImpl(remote: remote);
+  static Dio provideDio() {
+    return Dio(BaseOptions(baseUrl: "http://192.168.0.100:8000")); // локальная сеть
+  }
+
+  // ===== Chat =====
+  static ChatRepositoryImpl provideChatRepository() {
+    return ChatRepositoryImpl(remote: ChatRemoteDataSource(provideDio()));
   }
 
   static GetChatsUseCase provideGetChatsUseCase() {
-    return GetChatsUseCase(provideRepository());
+    return GetChatsUseCase(provideChatRepository());
   }
 
   static CreateChatUseCase provideCreateChatUseCase() {
-    return CreateChatUseCase(provideRepository());
+    return CreateChatUseCase(provideChatRepository());
   }
 
   static ChatBloc provideChatBloc() {
     return ChatBloc(
       getChatsUseCase: provideGetChatsUseCase(),
       createChatUseCase: provideCreateChatUseCase(),
+    );
+  }
+
+  // ===== Message =====
+  static MessageRepositoryImpl provideMessageRepository() {
+    return MessageRepositoryImpl(remote: MessageRemoteDataSource(provideDio()));
+  }
+
+  static GetMessagesUseCase provideGetMessagesUseCase() {
+    return GetMessagesUseCase(provideMessageRepository());
+  }
+
+  static SendMessageUseCase provideSendMessageUseCase() {
+    return SendMessageUseCase(provideMessageRepository());
+  }
+
+  static MessageBloc provideMessageBloc() {
+    return MessageBloc(
+      getMessagesUseCase: provideGetMessagesUseCase(),
+      sendMessageUseCase: provideSendMessageUseCase(),
     );
   }
 }

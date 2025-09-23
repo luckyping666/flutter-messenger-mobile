@@ -1,12 +1,12 @@
+import 'package:messanger/features/chat/data/datasources/message_remote_datasource.dart';
 import 'package:messanger/features/chat/domain/enitities/message.dart';
 import '../../domain/repositories/message_repository.dart';
-import '../datasources/chat_remote_datasource.dart';
 
 
 class MessageRepositoryImpl implements MessageRepository {
-  final ChatRemoteDataSource remote;
+  final MessageRemoteDataSource remote;
 
-  MessageRepositoryImpl(this.remote);
+  MessageRepositoryImpl({required this.remote});
 
   @override
   Future<List<Message>> getMessages({required int chatId}) async {
