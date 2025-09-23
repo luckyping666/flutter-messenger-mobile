@@ -15,12 +15,12 @@ class MessagePage extends StatefulWidget {
 
 class _MessagePageState extends State<MessagePage> {
   late final int chatId;
-  final int currentUserId = 1; // временно, заменить на реальный ID из authBloc
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Получаем chatId из arguments
+
+    // Получаем chatId из аргументов
     chatId = ModalRoute.of(context)!.settings.arguments as int;
 
     // Загружаем сообщения этого чата
@@ -54,19 +54,25 @@ class _MessagePageState extends State<MessagePage> {
           } 
           else if (state is MessageLoaded) {
             final messages = state.messages;
+            if (messages.isEmpty) {
+              return Center(
+                child: Text("No messages yet.", style: TextStyle(color: Colors.grey)),
+              );
+            }
             return ListView.builder(
               padding: EdgeInsets.all(10),
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final message = messages[index];
-                final isSender = message.senderId == currentUserId;
+                final isSender = true;
                 return _buildMessageBubble(message, isSender);
               },
             );
           } 
           else if (state is MessageError) {
             return Center(
-                child: Text(state.message, style: TextStyle(color: Colors.red)));
+              child: Text(state.message, style: TextStyle(color: Colors.red)),
+            );
           }
           return SizedBox.shrink();
         },

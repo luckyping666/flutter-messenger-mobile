@@ -14,7 +14,7 @@ class MessageModel extends Message {
     return MessageModel(
       id: json['id'],
       chatId: json['chat_id'],
-      senderId: json['sender_id'],
+      senderId: json['author_id'],
       content: json['content'],
       createdAt: DateTime.parse(json['created_at']),
     );

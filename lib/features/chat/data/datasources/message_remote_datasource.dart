@@ -6,7 +6,10 @@ class MessageRemoteDataSource {
   MessageRemoteDataSource(this.dio);
 
   Future<List<MessageModel>> getMessages(int chatId) async {
-    final response = await dio.get('/chats/$chatId/messages');
+    final response = await dio.get('/messages/chat/$chatId');
+    
+    print(response.data);
+    
     return (response.data as List)
         .map((json) => MessageModel.fromJson(json))
         .toList();
@@ -14,8 +17,8 @@ class MessageRemoteDataSource {
 
   Future<MessageModel> sendMessage(int chatId, int senderId, String content) async {
     final response = await dio.post(
-      '/chats/$chatId/messages',
-      data: {'sender_id': senderId, 'content': content},
+      '/messages',
+      data: {'chat_id': chatId, 'content': content},
     );
     return MessageModel.fromJson(response.data);
   }
