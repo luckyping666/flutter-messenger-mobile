@@ -16,7 +16,7 @@ class ChatModel extends Chat {
       user1Id: json['user1_id'],
       user2Id: json['user2_id'],
       lastMessage: json['last_message'] ?? '',
-      updatedAt: DateTime.parse(json['updated_at']),
+      updatedAt: DateTime.parse(json['created_at']),
     );
   }
 

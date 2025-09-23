@@ -7,6 +7,9 @@ class ChatRemoteDataSource {
 
   Future<List<ChatModel>> getChats() async {
     final response = await dio.get('/chats');
+    
+    print(response.data);
+
     return (response.data as List)
         .map((json) => ChatModel.fromJson(json))
         .toList();
