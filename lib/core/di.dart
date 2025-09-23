@@ -12,7 +12,7 @@ import 'package:messanger/features/auth/presentation/bloc/auth_bloc.dart';
 class DI {
   // Data sources
   static AuthRemoteDataSource provideAuthRemoteDataSource() {
-    final dio = Dio(BaseOptions(baseUrl: "backend-url"));
+    final dio = Dio(BaseOptions(baseUrl: "http://192.168.0.14:8000"));
     return AuthRemoteDataSource(dio);
   }
 

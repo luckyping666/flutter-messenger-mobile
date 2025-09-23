@@ -61,9 +61,10 @@ class _LoginPageState extends State<LoginPage> {
 
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
-                  if (state is AuthAuthenticated) {
+                  if (state is AuthTokenReceived) {
                     Navigator.pushReplacementNamed(context, '/messagePage');
-                  } else if (state is AuthError) {
+                  } 
+                  else if (state is AuthError) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(state.message)),
                     );
