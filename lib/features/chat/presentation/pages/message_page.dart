@@ -1,43 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:messanger/core/theme.dart';
-import 'package:messanger/features/chat/domain/enitities/chat.dart';
 import 'package:messanger/features/chat/domain/enitities/message.dart';
 import 'package:messanger/features/chat/presentation/bloc/message/message_bloc.dart';
 import 'package:messanger/features/chat/presentation/bloc/message/message_event.dart';
 import 'package:messanger/features/chat/presentation/bloc/message/message_state.dart';
 
-class ChatPage extends StatefulWidget {
-  final Chat chat; // чат, который открывается
-
-  const ChatPage({super.key, required this.chat});
+class MessagePage extends StatefulWidget {
+  const MessagePage({super.key});
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<MessagePage> createState() => _MessagePageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
-  final TextEditingController _controller = TextEditingController();
+class _MessagePageState extends State<MessagePage> {
+  late final int chatId;
+  final int currentUserId = 1; // временно, заменить на реальный ID из authBloc
 
   @override
-  void initState() {
-    super.initState();
-    // Загружаем все сообщения этого чата
-    BlocProvider.of<MessageBloc>(context)
-        .add(LoadMessages(chatId: widget.chat.id));
-  }
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Получаем chatId из arguments
+    chatId = ModalRoute.of(context)!.settings.arguments as int;
 
-  void _sendMessage() {
-    final content = _controller.text.trim();
-    if (content.isEmpty) return;
-
-    BlocProvider.of<MessageBloc>(context).add(SendMessage(
-      chatId: widget.chat.id,
-      content: content,
-      senderId: widget.chat.user1Id, // или текущий пользователь
-    ));
-
-    _controller.clear();
+    // Загружаем сообщения этого чата
+    context.read<MessageBloc>().add(LoadMessages(chatId: chatId));
   }
 
   @override
@@ -51,7 +38,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
             SizedBox(width: 10),
             Text(
-              "Chat with User ${widget.chat.user2Id}",
+              "Chat #$chatId",
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ],
@@ -59,78 +46,30 @@ class _ChatPageState extends State<ChatPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 70,
-        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.search))],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: BlocBuilder<MessageBloc, MessageState>(
-              builder: (context, state) {
-                if (state is MessageLoading) {
-                  return Center(child: CircularProgressIndicator());
-                } 
-                
-                else if (state is MessageLoaded) {
-                  final messages = state.messages;
-                  return ListView.builder(
-                    padding: EdgeInsets.all(10),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final message = messages[index];
-                      final isSender = message.senderId == widget.chat.user1Id;
-                      return _buildMessageBubble(message, isSender);
-                    },
-                  );
-                } 
-                
-                else if (state is MessageError) {
-                  return Center(
-                      child: Text(state.message,
-                          style: TextStyle(color: Colors.red)));
-                }
-                
-                return SizedBox.shrink();
+      body: BlocBuilder<MessageBloc, MessageState>(
+        builder: (context, state) {
+          if (state is MessageLoading) {
+            return Center(child: CircularProgressIndicator());
+          } 
+          else if (state is MessageLoaded) {
+            final messages = state.messages;
+            return ListView.builder(
+              padding: EdgeInsets.all(10),
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final message = messages[index];
+                final isSender = message.senderId == currentUserId;
+                return _buildMessageBubble(message, isSender);
               },
-            ),
-          ),
-          _buildMessageInput(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMessageInput() {
-    return Container(
-      decoration: BoxDecoration(
-        color: DefaultColors.sendMessageInput,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      margin: EdgeInsets.all(25),
-      padding: EdgeInsets.symmetric(horizontal: 15),
-      child: Row(
-        children: [
-          GestureDetector(
-            child: Icon(Icons.camera_alt, color: Colors.grey),
-            onTap: () {},
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                hintText: "Message",
-                hintStyle: TextStyle(color: Colors.grey),
-                border: InputBorder.none,
-              ),
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-          SizedBox(width: 10),
-          GestureDetector(
-            child: Icon(Icons.send, color: Colors.grey),
-            onTap: _sendMessage,
-          ),
-        ],
+            );
+          } 
+          else if (state is MessageError) {
+            return Center(
+                child: Text(state.message, style: TextStyle(color: Colors.red)));
+          }
+          return SizedBox.shrink();
+        },
       ),
     );
   }

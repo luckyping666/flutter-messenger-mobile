@@ -5,6 +5,7 @@ import 'package:messanger/core/theme.dart';
 import 'package:messanger/features/auth/presentation/pages/login_page.dart';
 import 'package:messanger/features/auth/presentation/pages/register_page.dart';
 import 'package:messanger/features/chat/presentation/pages/chat_page.dart';
+import 'package:messanger/features/chat/presentation/pages/message_page.dart';
 
 
 void main() {
@@ -39,6 +40,7 @@ class AppRoot extends StatelessWidget {
           '/login': (_) => const LoginPage(),
           '/register': (_) => const RegisterPage(),
           '/messagePage': (_) => const ChatsPage(),
+          '/chat': (_) => const MessagePage(),
         },
       ),
     );
