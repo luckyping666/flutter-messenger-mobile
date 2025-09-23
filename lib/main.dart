@@ -4,7 +4,8 @@ import 'package:messanger/core/di.dart';
 import 'package:messanger/core/theme.dart';
 import 'package:messanger/features/auth/presentation/pages/login_page.dart';
 import 'package:messanger/features/auth/presentation/pages/register_page.dart';
-import 'package:messanger/message_page.dart';
+import 'package:messanger/features/chat/presentation/pages/chat_page.dart';
+
 
 void main() {
   runApp(const AppRoot());
@@ -37,7 +38,7 @@ class AppRoot extends StatelessWidget {
         routes: {
           '/login': (_) => const LoginPage(),
           '/register': (_) => const RegisterPage(),
-          '/messagePage': (_) => const MessagePage(),
+          '/messagePage': (_) => const ChatsPage(),
         },
       ),
     );
