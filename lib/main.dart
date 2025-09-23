@@ -16,11 +16,19 @@ class AppRoot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
+      
       providers: [
         BlocProvider(
           create: (_) => DI.provideAuthBloc(),
+        ),  
+        BlocProvider(
+          create: (_) => ChatDI.provideChatBloc(),
+        ),
+        BlocProvider(
+          create: (_) => ChatDI.provideMessageBloc(),
         ),
       ],
+      
       child: MaterialApp(
         title: "Messenger App",
         theme: AppTheme.darkTheme,
