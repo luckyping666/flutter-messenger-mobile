@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:messanger/features/auth/data/datasources/auth_interceptor.dart';
 import 'package:messanger/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:messanger/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:messanger/features/auth/data/repositories_impl/auth_repository_impl.dart';
@@ -19,19 +20,26 @@ import 'package:messanger/features/chat/presentation/bloc/chat/chat_bloc.dart';
 import 'package:messanger/features/chat/presentation/bloc/message/message_bloc.dart';
 
 
-class DI {
-  // Data sources
-  static AuthRemoteDataSource provideAuthRemoteDataSource() {
-    final dio = Dio(BaseOptions(baseUrl: "http://192.168.0.14:8000"));
-    return AuthRemoteDataSource(dio);
-  }
+// ================= AUTH =================
 
-   static AuthLocalDataSource provideAuthLocalDataSource() {
+class DI {
+  static AuthLocalDataSource provideAuthLocalDataSource() {
     final storage = const FlutterSecureStorage();
     return AuthLocalDataSource(storage);
   }
 
-  // Repository
+  static AuthRemoteDataSource provideAuthRemoteDataSource() {
+    final dio = Dio(BaseOptions(baseUrl: "http://192.168.0.14:8000"));
+
+    // Добавляем interceptor
+    dio.interceptors.add(AuthInterceptor(
+      provideAuthLocalDataSource(),
+      AuthRemoteDataSource(dio),
+    ));
+
+    return AuthRemoteDataSource(dio);
+  }
+
   static AuthRepositoryImpl provideAuthRepository() {
     return AuthRepositoryImpl(
       remote: provideAuthRemoteDataSource(),
@@ -39,7 +47,7 @@ class DI {
     );
   }
 
-  // UseCases
+  // UseCases и Bloc остаются без изменений
   static RegisterUseCase provideRegisterUseCase() {
     return RegisterUseCase(repository: provideAuthRepository());
   }
@@ -52,7 +60,6 @@ class DI {
     return LogoutUseCase(repository: provideAuthRepository());
   }
 
-  // Bloc
   static AuthBloc provideAuthBloc() {
     return AuthBloc(
       registerUseCase: provideRegisterUseCase(),
@@ -62,13 +69,21 @@ class DI {
   }
 }
 
+// ================= CHAT =================
 
 class ChatDI {
   static Dio provideDio() {
-    return Dio(BaseOptions(baseUrl: "http://192.168.0.100:8000")); // локальная сеть
+    final dio = Dio(BaseOptions(baseUrl: "http://192.168.0.100:8000"));
+
+    // Подключаем interceptor для всех chat/message запросов
+    dio.interceptors.add(AuthInterceptor(
+      DI.provideAuthLocalDataSource(),
+      DI.provideAuthRemoteDataSource(),
+    ));
+
+    return dio;
   }
 
-  // ===== Chat =====
   static ChatRepositoryImpl provideChatRepository() {
     return ChatRepositoryImpl(remote: ChatRemoteDataSource(provideDio()));
   }
@@ -88,7 +103,6 @@ class ChatDI {
     );
   }
 
-  // ===== Message =====
   static MessageRepositoryImpl provideMessageRepository() {
     return MessageRepositoryImpl(remote: MessageRemoteDataSource(provideDio()));
   }
