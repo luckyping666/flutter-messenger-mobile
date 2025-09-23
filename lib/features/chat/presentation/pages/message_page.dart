@@ -15,16 +15,32 @@ class MessagePage extends StatefulWidget {
 
 class _MessagePageState extends State<MessagePage> {
   late final int chatId;
+  final TextEditingController _controller = TextEditingController();
+  final int currentUserId = 4; // заменить на реальный ID пользователя
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Получаем chatId из аргументов
     chatId = ModalRoute.of(context)!.settings.arguments as int;
 
-    // Загружаем сообщения этого чата
+    // Загружаем сообщения чата
     context.read<MessageBloc>().add(LoadMessages(chatId: chatId));
+  }
+
+  void _sendMessage() {
+    final content = _controller.text.trim();
+    if (content.isEmpty) return;
+
+    context.read<MessageBloc>().add(
+      SendMessage(
+        chatId: chatId,
+        content: content,
+        senderId: currentUserId,
+      ),
+    );
+
+    _controller.clear();
   }
 
   @override
@@ -47,35 +63,40 @@ class _MessagePageState extends State<MessagePage> {
         elevation: 0,
         toolbarHeight: 70,
       ),
-      body: BlocBuilder<MessageBloc, MessageState>(
-        builder: (context, state) {
-          if (state is MessageLoading) {
-            return Center(child: CircularProgressIndicator());
-          } 
-          else if (state is MessageLoaded) {
-            final messages = state.messages;
-            if (messages.isEmpty) {
-              return Center(
-                child: Text("No messages yet.", style: TextStyle(color: Colors.grey)),
-              );
-            }
-            return ListView.builder(
-              padding: EdgeInsets.all(10),
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                final message = messages[index];
-                final isSender = true;
-                return _buildMessageBubble(message, isSender);
+      body: Column(
+        children: [
+          Expanded(
+            child: BlocBuilder<MessageBloc, MessageState>(
+              builder: (context, state) {
+                if (state is MessageLoading) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (state is MessageLoaded) {
+                  final messages = state.messages;
+                  if (messages.isEmpty) {
+                    return Center(
+                      child: Text("No messages yet.", style: TextStyle(color: Colors.grey)),
+                    );
+                  }
+                  return ListView.builder(
+                    padding: EdgeInsets.all(10),
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      final message = messages[index];
+                      final isSender = message.senderId == currentUserId;
+                      return _buildMessageBubble(message, isSender);
+                    },
+                  );
+                } else if (state is MessageError) {
+                  return Center(
+                    child: Text(state.message, style: TextStyle(color: Colors.red)),
+                  );
+                }
+                return SizedBox.shrink();
               },
-            );
-          } 
-          else if (state is MessageError) {
-            return Center(
-              child: Text(state.message, style: TextStyle(color: Colors.red)),
-            );
-          }
-          return SizedBox.shrink();
-        },
+            ),
+          ),
+          _buildMessageInput(), // подключаем поле ввода
+        ],
       ),
     );
   }
@@ -91,6 +112,42 @@ class _MessagePageState extends State<MessagePage> {
           borderRadius: BorderRadius.circular(15),
         ),
         child: Text(message.content, style: Theme.of(context).textTheme.bodyMedium),
+      ),
+    );
+  }
+
+  Widget _buildMessageInput() {
+    return Container(
+      decoration: BoxDecoration(
+        color: DefaultColors.sendMessageInput,
+        borderRadius: BorderRadius.circular(25),
+      ),
+      margin: EdgeInsets.all(25),
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      child: Row(
+        children: [
+          GestureDetector(
+            child: Icon(Icons.camera_alt, color: Colors.grey),
+            onTap: () {},
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              controller: _controller,
+              decoration: InputDecoration(
+                hintText: "Message",
+                hintStyle: TextStyle(color: Colors.grey),
+                border: InputBorder.none,
+              ),
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          SizedBox(width: 10),
+          GestureDetector(
+            child: Icon(Icons.send, color: Colors.grey),
+            onTap: _sendMessage, // отправка сообщения
+          ),
+        ],
       ),
     );
   }

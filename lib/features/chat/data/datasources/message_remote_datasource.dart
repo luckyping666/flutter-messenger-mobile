@@ -16,10 +16,9 @@ class MessageRemoteDataSource {
   }
 
   Future<MessageModel> sendMessage(int chatId, int senderId, String content) async {
-    final response = await dio.post(
-      '/messages',
-      data: {'chat_id': chatId, 'content': content},
-    );
+    final response = await dio.post('/messages/send', data: {'chat_id': chatId, 'content': content});
+    print(response.data.runtimeType);
+    print(response.data);
     return MessageModel.fromJson(response.data);
   }
 }

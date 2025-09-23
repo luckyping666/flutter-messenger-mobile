@@ -73,7 +73,7 @@ class DI {
 
 class ChatDI {
   static Dio provideDio() {
-    final dio = Dio(BaseOptions(baseUrl: "http://192.168.0.14:8000"));
+    final dio = Dio(BaseOptions(baseUrl: "http://192.168.0.14:8000", validateStatus: (status) => status! < 400,));
 
     // Подключаем interceptor для всех chat/message запросов
     dio.interceptors.add(AuthInterceptor(
